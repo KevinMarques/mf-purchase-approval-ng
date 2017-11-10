@@ -2,25 +2,146 @@
     <div class="row">
         <div class="col-md-12">
             <h2>Solicitudes de compra</h2>
-            <table class="table">
+            <div class="col-md-12 mf-header-actions">
+                <button type="button" class="btn btn-sm btn-primary" (click)="newPurchaseModal.show()">Nueva solicitud</button>
+            </div>
+            <div *ngIf="listLoading" class="sk-chasing-dots">
+                <div class="sk-child sk-dot1"></div>
+                <div class="sk-child sk-dot2"></div>
+            </div>
+            <table *ngIf="purchases.length > 0" class="table">
                 <thead>
-                <tr>
-                    <th>Solicitante</th>
-                    <th>Fecha solicitud</th>
-                    <th>Artículo o servicio</th>
-                    <th>Precio estimado</th>
-                </tr>
+                    <tr>
+                        <th>Solicitante</th>
+                        <th>Fecha solicitud</th>
+                        <th>Descripción</th>
+                        <th>Precio estimado</th>
+                        <th>Ver detalle</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let purchase of purchases">
-                    <td>{{purchase.username}}</td>
-                    <td>{{purchase.date | date:'dd-MM-yyyy' }}</td>
-                    <td>{{purchase.name}}</td>
-                    <td>{{purchase.price}}</td>
-                </tr>
+                    <tr [@fadeIn]="''" *ngFor="let purchase of purchases">
+                        <td>{{purchase.user.username}}</td>
+                        <td>{{purchase.date | date:'d' }} de {{purchase.date | date:'MMMM' }}</td>
+                        <td>{{purchase.name}}</td>
+                        <td *ngIf="purchase.total_price; else totalFree">{{purchase.total_price}}€</td>
+                        <ng-template #totalFree>
+                            <td class="text-success">Gratis</td>
+                        </ng-template>
+                        <td>
+                            <a href="#" (click)="showPurchaseDetailModal(purchase)" title="Ver detalle">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
+<div bsModal #newPurchaseModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left text-primary">¡Pardiez! Tú otra vez... ¿qué quieres ahora?</h4>
+                <button type="button" class="close pull-right" (click)="newPurchaseModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-left">
+                <form class="form">
+                    <div class="form-group">
+                        <label for="purchase-description">
+                            <strong>Describe tu compra</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm" id="newPurchaseName" name="newPurchaseName" aria-describedby="purchase-description-help"
+                            placeholder="Por ejemplo, 'potardos varios'" [(ngModel)]="newPurchase.name">
+                        <small id="purchase-description-help" class="form-text text-muted">Procura que tu descripción sea lo más reveladora y escueta posible.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchase-item-name">
+                            <strong>Añade ahora los artículos o servicios que ansías adquirir</strong>
+                        </label>
+                        <div class="row">
+                            <div class="col-9 col-md-8">
+                                <input class="form-control form-control-sm" type="text" id="newItemName" placeholder="Nombre del artículo/servicio" [(ngModel)]="newItem.name"
+                                    name="newItemName" />
+                            </div>
+                            <div class="col-3 col-md-2">
+                                <input class="form-control form-control-sm" type="number" id="newItemPrice" placeholder="Precio (€)" [(ngModel)]="newItem.price"
+                                    name="newItemPrice" />
+                            </div>
+                            <div class="col-12 col-md-2 text-right">
+                                <button class="btn btn-sm btn-outline-primary" style="width: 100%" type="button" (click)="addItem()" [disabled]="!newItem.name || !newItem.price">Añadir</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <td>Artículo/Servicio</td>
+                                <td class="text-center">Precio</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="!newPurchase?.items">
+                                <td colspan="2" class="text-muted small">
+                                    Todavía no has añadido ningún elemento
+                                </td>
+                            </tr>
+                            <tr *ngFor="let item of newPurchase?.items">
+                                <td class="small">{{item.name}}</td>
+                                <td class="small text-center">{{item.price}}€</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-md-6 text-left">
+                            <button type="button" class="btn btn-outline-warning" (click)="newPurchaseModal.hide()">Aún estás a tiempo, vete de aquí</button>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <button type="submit" class="btn btn-primary" [disabled]="!newPurchase?.items" (click)="confirmNewPurchase()">Confirmar solicitud</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div bsModal #showDetailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left text-primary">Bueno, bonito y caro, muy caro</h4>
+                <button type="button" class="close pull-right" (click)="showDetailModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-left">
+                <h3>{{selectedPurchase?.name}}</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Artículo/Servicio</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of selectedPurchase?.items">
+                            <td>{{item.name}}</td>
+                            <td>{{item.price}}€</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-right">
+                    <button type="button" class="btn btn-danger">Rechazar brutalmente</button>
+                    <button type="submit" class="btn btn-success">Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
