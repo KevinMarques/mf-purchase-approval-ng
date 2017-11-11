@@ -23,15 +23,15 @@ import { trigger, state, animate, style, transition } from '@angular/animations'
     ]
 })
 export class PurchasesComponent implements OnInit {
-    @ViewChild('newPurchaseModal') public modal: ModalDirective;
-    @ViewChild('showDetailModal') public modalDetail: ModalDirective;
+    @ViewChild('newPurchaseModal') public modalNewPurchase: ModalDirective;
+    @ViewChild('showDetailModal') public modalPurchaseDetail: ModalDirective;
 
     public purchases: Array<Purchase> = [];
-    modalRef: BsModalRef;
     public newPurchase: Purchase = new Purchase();
     public newItem: Item = new Item();
     public listLoading = true;
     public selectedPurchase: Purchase;
+    public creatingNewPurchase = false;
 
     constructor(public api: ApiService, private modalService: BsModalService) {
     }
@@ -50,13 +50,13 @@ export class PurchasesComponent implements OnInit {
         });
     }
 
-    openModal(template: TemplateRef<any>) {
-        this.modalRef = this.modalService.show(template);
+    showNewPurchaseModal() {
+        this.modalNewPurchase.show();
     }
 
     showPurchaseDetailModal(purchase: Purchase) {
         this.selectedPurchase = purchase;
-        this.modalDetail.show();
+        this.modalPurchaseDetail.show();
     }
 
     addItem() {
@@ -68,9 +68,16 @@ export class PurchasesComponent implements OnInit {
     }
 
     confirmNewPurchase() {
+        this.creatingNewPurchase = true;
         this.api.post('/purchase/', this.newPurchase).then(response => {
-            this.modal.hide();
+            this.modalNewPurchase.hide();
+            this.resetNewPurchase();
             this.getPurchases();
         });
+    }
+
+    resetNewPurchase() {
+        this.newPurchase = new Purchase();
+        this.creatingNewPurchase = false;
     }
 }
