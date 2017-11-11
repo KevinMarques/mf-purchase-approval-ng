@@ -5,4 +5,5 @@ export class Purchase {
     name: string;
     date: any;
     items: Array<Item>;
+    total_price: number;
 }

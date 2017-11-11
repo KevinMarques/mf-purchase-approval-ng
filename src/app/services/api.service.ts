@@ -44,4 +44,32 @@ export class ApiService {
             }, error => reject(error));
         });
     }
+
+    public delete(endpoint, auth = true) {
+        let username: string = 'bio';
+        let password: string = 'bazinga';
+        var headers = new Headers();
+        headers.append("Authorization", "Basic " + btoa(username + ":" + password)); 
+        headers.append('Content-Type', 'application/json');
+
+        return new Promise((resolve, reject) => {
+            this._http.delete(this.baseURL + endpoint, { headers: headers }).subscribe(response => {
+                resolve(response.ok);
+            }, error => reject(error));
+        });
+    }
+
+    public patch(endpoint, data, auth = true) {
+        let username: string = 'bio';
+        let password: string = 'bazinga';
+        var headers = new Headers();
+        headers.append("Authorization", "Basic " + btoa(username + ":" + password)); 
+        headers.append('Content-Type', 'application/json');
+
+        return new Promise((resolve, reject) => {
+            this._http.patch(this.baseURL + endpoint, data, { headers: headers }).subscribe(response => {
+                resolve(response.ok);
+            }, error => reject(error));
+        });
+    }
 }

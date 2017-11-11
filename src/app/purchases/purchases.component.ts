@@ -1,12 +1,15 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Purchase } from '../purchase';
-import { Item } from '../item';
 import { ApiService } from '../services/api.service';
 import { DatePipe } from '@angular/common';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+
+// ngx-bootstrap imports
 import { ModalDirective } from 'ngx-bootstrap/modal/index';
 
+// entity imports
+import { Purchase } from '../purchase';
+import { Item } from '../item';
+
+// animation
 import { trigger, state, animate, style, transition } from '@angular/animations'
 
 @Component({
@@ -33,7 +36,7 @@ export class PurchasesComponent implements OnInit {
     public selectedPurchase: Purchase;
     public creatingNewPurchase = false;
 
-    constructor(public api: ApiService, private modalService: BsModalService) {
+    constructor(public api: ApiService) {
     }
 
     ngOnInit() {
@@ -76,8 +79,40 @@ export class PurchasesComponent implements OnInit {
         });
     }
 
+    deletePurchase(purchase: Purchase) {
+        this.api.delete('/purchase/' + purchase.id + '/').then(response => {
+            if (response) {
+                this.modalPurchaseDetail.hide();
+                this.getPurchases();
+            } else {
+                // No se ha podido borrar
+            }
+        });
+    }
+
     resetNewPurchase() {
         this.newPurchase = new Purchase();
         this.creatingNewPurchase = false;
+    }
+
+    startEditingItem(item: Item) {
+        // TODO
+    }
+
+    removeItem(i: Item) {
+        this.selectedPurchase.items = this.selectedPurchase.items.filter(item => item.id !== i.id);
+        // Recalculate total amount...
+        this.selectedPurchase.total_price -= i.price;
+    }
+
+    confirmPurchaseEdition(purchase: Purchase) {
+        this.api.patch('/purchase/' + purchase.id + '/', purchase).then(response => {
+            if (response) {
+                this.modalPurchaseDetail.hide();
+                this.getPurchases();
+            } else {
+                // No se ha podido borrar
+            }
+        });
     }
 }

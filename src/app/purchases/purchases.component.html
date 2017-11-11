@@ -16,7 +16,7 @@
                         <th>Fecha solicitud</th>
                         <th>Descripción</th>
                         <th>Precio estimado</th>
-                        <th>Ver detalle</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,9 +29,9 @@
                             <td class="text-success">Gratis</td>
                         </ng-template>
                         <td>
-                            <button class="btn btn-link" (click)="showPurchaseDetailModal(purchase)">
+                            <a href="#" title="Ver detalle" (click)="showPurchaseDetailModal(purchase)">
                                 <i class="fa fa-search" aria-hidden="true"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 </tbody>
@@ -110,7 +110,7 @@
         </div>
         <div *ngIf="creatingNewPurchase" class="modal-content">
             <div class="modal-header">
-                    <h4 class="modal-title pull-left text-primary">Enviando solicitud...</h4>
+                <h4 class="modal-title pull-left text-primary">Enviando solicitud...</h4>
                 <button type="button" class="close pull-right" (click)="newPurchaseModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -130,28 +130,53 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title pull-left text-primary">Bueno, bonito y caro, muy caro</h4>
+                <h4 class="modal-title pull-left text-primary">Datos de la solicitud
+                    <strong>{{selectedPurchase?.name}}</strong>
+                </h4>
                 <button type="button" class="close pull-right" (click)="showDetailModal.hide()" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-left">
-                <h3>{{selectedPurchase?.name}}</h3>
-                <table class="table">
+                <div class="row text-center" style="margin-bottom:1rem">
+                    <div class="col-md-6">
+                        Solicitante:
+                        <strong>{{selectedPurchase?.user.username}}</strong>
+                    </div>
+                    <div class="col-md-6">
+                        Fecha:
+                        <strong>{{selectedPurchase?.date | date:'EEEE, d' }} de {{selectedPurchase?.date | date:'MMMM' }}</strong>
+                    </div>
+                </div>
+                <table class="table table-sm">
                     <thead>
                         <tr>
                             <th>Artículo/Servicio</th>
-                            <th>Precio</th>
+                            <th class="text-center">Precio</th>
+                            <th colspan="2"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of selectedPurchase?.items">
                             <td>{{item.name}}</td>
-                            <td>{{item.price}}€</td>
+                            <td class="text-center">{{item.price}}€</td>
+                            <td><a href="#" class="text-warning" title="Editar elemento" (click)="startEditingItem(item)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
+                            <td><a href="#" class="text-danger" title="Borrar elemento" (click)="removeItem(item)"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-center">
+                                <strong>{{selectedPurchase?.total_price}}€</strong>
+                            </td>
+                            <td colspan="2"></td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="text-right">
+                    <button type="button" class="btn btn-danger" (click)="deletePurchase(selectedPurchase)">Eliminar solicitud</button>
+                    <button type="button" class="btn btn-success" (click)="confirmPurchaseEdition(selectedPurchase)">Guardar cambios</button>
                     <button type="button" class="btn btn-danger">Rechazar brutalmente</button>
                     <button type="submit" class="btn btn-success">Aprobar</button>
                 </div>
