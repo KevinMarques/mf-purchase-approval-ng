@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, Input } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { DatePipe } from '@angular/common';
 
@@ -8,6 +8,7 @@ import { ModalDirective } from 'ngx-bootstrap/modal/index';
 // entity imports
 import { Purchase } from '../purchase';
 import { Item } from '../item';
+import { User } from '../user';
 
 // animation
 import { trigger, state, animate, style, transition } from '@angular/animations'
@@ -29,12 +30,13 @@ export class PurchasesComponent implements OnInit {
     @ViewChild('newPurchaseModal') public modalNewPurchase: ModalDirective;
     @ViewChild('showDetailModal') public modalPurchaseDetail: ModalDirective;
 
-    public purchases: Array<Purchase> = [];
+    public purchases: Array<Purchase>;
     public newPurchase: Purchase = new Purchase();
     public newItem: Item = new Item();
-    public listLoading = true;
     public selectedPurchase: Purchase;
     public creatingNewPurchase = false;
+
+    @Input('user') currentUser: User;
 
     constructor(public api: ApiService) {
     }
@@ -45,7 +47,6 @@ export class PurchasesComponent implements OnInit {
 
     getPurchases() {
         this.api.get('/purchase/').then(response => {
-            this.listLoading = false;
             // Sort purchases by date
             this.purchases = response['purchases'].sort(function (a, b) {
                 return new Date(b.date).getTime() - new Date(a.date).getTime();

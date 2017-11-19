@@ -2,14 +2,14 @@
     <div class="row">
         <div class="col-md-12">
             <h2>Solicitudes de compra</h2>
-            <div class="col-md-12 mf-header-actions">
+            <div *ngIf="currentUser.loggedIn" class="col-md-12 mf-header-actions">
                 <button type="button" class="btn btn-sm btn-primary" (click)="newPurchaseModal.show()">Nueva solicitud</button>
             </div>
-            <div *ngIf="listLoading" class="sk-chasing-dots">
+            <div *ngIf="!purchases" class="sk-chasing-dots">
                 <div class="sk-child sk-dot1"></div>
                 <div class="sk-child sk-dot2"></div>
             </div>
-            <table *ngIf="purchases.length > 0" class="table">
+            <table *ngIf="purchases?.length" class="table">
                 <thead>
                     <tr>
                         <th>Solicitante</th>

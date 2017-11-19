@@ -7,8 +7,52 @@
             </h1>
         </div>
         <div class="col-md-12 mmc-body">
-            <app-purchases></app-purchases>
+            <div class="container">
+                <div class="text-right">
+                    <div *ngIf="user.loggedIn">
+                        <button class="btn btn-link" (click)="logout()">Cerrar sesión</button>
+                    </div>
+                    <div *ngIf="!user.loggedIn">
+                        <button class="btn btn-link" (click)="loginModal.show()">Iniciar sesión</button>
+                    </div>
+                </div>
+            </div>
+            <app-purchases [user]="user">
+            </app-purchases>
         </div>
     </div>
 </div>
 
+<div bsModal #loginModal="bs-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left text-primary">Iniciar sesión</h4>
+                <button type="button" class="close pull-right" (click)="loginModal.hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-left">
+                <form class="form">
+                    <div class="form-group">
+                        <label for="username">
+                            <strong>Usuario</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm" id="username" name="username" placeholder="Nombre de usuario" [(ngModel)]="user.username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">
+                            <strong>Contraseña</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm" id="password" name="password" aria-describedby="password-help" placeholder="**********"
+                            [(ngModel)]="user.password">
+                        <small id="password-help" class="form-text text-muted text-justify">Si has olvidado tu contraseña, pagas el dominio motherfoca del próximo año.</small>
+                    </div>
+                </form>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success btn-sm" style="width: 100%" (click)="login()">Go!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
