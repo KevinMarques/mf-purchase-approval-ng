@@ -32,9 +32,9 @@
                             <td class="text-success">Gratis</td>
                         </ng-template>
                         <td>
-                            <a href="#" title="Ver detalle" (click)="showPurchaseDetailModal(purchase)">
+                            <button class="btn btn-link" (click)="showPurchaseDetailModal(purchase)">
                                 <i class="fa fa-search" aria-hidden="true"></i>
-                            </a>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -167,7 +167,7 @@
                         <tr *ngFor="let item of selectedPurchase?.items">
                             <td>
                                 <span *ngIf="!editingPurchase">
-                                    <strong>{{item.name}}</strong>
+                                    {{item.name}}
                                 </span>
                                 <span *ngIf="editingPurchase">
                                     <input type="text" [(ngModel)]="item.name" class="form-control form-control-sm">
@@ -175,7 +175,7 @@
                             </td>
                             <td class="text-center">
                                 <span *ngIf="!editingPurchase">
-                                    <strong>{{item.price | number}}€</strong>
+                                    {{item.price | number}}€
                                 </span>
                                 <span *ngIf="editingPurchase">
                                     <input type="text" [(ngModel)]="item.price" class="form-control form-control-sm">
@@ -211,7 +211,7 @@
                 <div class="text-right">
                     <div *ngIf="currentUser.username != selectedPurchase?.user.username; else owner">
                         <button type="button" class="btn btn-sm btn-danger">Rechazar brutalmente</button>
-                        <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                        <button type="button" class="btn btn-sm btn-success">Aprobar</button>
                     </div>
                     <ng-template #owner>
                         <button type="button" class="btn btn-sm btn-danger" (click)="deletePurchase(selectedPurchase)">Eliminar solicitud</button>
