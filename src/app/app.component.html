@@ -5,20 +5,26 @@
             <h1>
                 {{title}}
             </h1>
+            <p class="lead">Tu servicio MotherFoca para no gastar tu sueldo demasiado despacio</p>
         </div>
         <div class="col-md-12 mmc-body">
             <div class="container">
-                <div class="text-right">
-                    <div *ngIf="user.loggedIn">
-                        <button class="btn btn-link" (click)="logout()">Cerrar sesión</button>
-                    </div>
-                    <div *ngIf="!user.loggedIn">
-                        <button class="btn btn-link" (click)="loginModal.show()">Iniciar sesión</button>
-                    </div>
+                <div *ngIf="user.loggedIn" class="text-right">
+                    <button class="btn btn-link" (click)="logout()">Cerrar sesión y destruir mi rastro</button>
+                </div>
+                <div *ngIf="!user.loggedIn" class="text-center">
+                    <h4>¿Quiéres crear tu solicitud o ver las de los demás?</h4>
+                    <p>
+                        <button type="button" class="btn btn-primary" (click)="loginModal.show()">Inicia sesión</button>
+                    </p>
+                    <p>Si aún no tienes una cuenta, busca la manera de
+                        <a href="https://www.getpostman.com/" title="Postman" target="_blank">crearte una</a>.</p>
                 </div>
             </div>
-            <app-purchases [user]="user">
-            </app-purchases>
+            <div *ngIf="user.loggedIn">
+                <app-purchases [user]="user">
+                </app-purchases>
+            </div>
         </div>
     </div>
 </div>
@@ -33,6 +39,9 @@
                 </button>
             </div>
             <div class="modal-body text-left">
+                <alert *ngIf="alert" type="danger">
+                    Nice try idiot!
+                </alert>
                 <form class="form">
                     <div class="form-group">
                         <label for="username">
@@ -44,8 +53,8 @@
                         <label for="password">
                             <strong>Contraseña</strong>
                         </label>
-                        <input type="text" class="form-control form-control-sm" id="password" name="password" aria-describedby="password-help" placeholder="**********"
-                            [(ngModel)]="user.password">
+                        <input type="password" class="form-control form-control-sm" id="password" name="password" aria-describedby="password-help"
+                            placeholder="**********" [(ngModel)]="user.password">
                         <small id="password-help" class="form-text text-muted text-justify">Si has olvidado tu contraseña, pagas el dominio motherfoca del próximo año.</small>
                     </div>
                 </form>

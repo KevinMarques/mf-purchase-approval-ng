@@ -1,4 +1,5 @@
 import { Item } from './item';
+import { User } from './user';
 
 export class Purchase {
     id: number;
@@ -6,4 +7,5 @@ export class Purchase {
     date: any;
     items: Array<Item>;
     total_price: number;
+    user: User;
 }

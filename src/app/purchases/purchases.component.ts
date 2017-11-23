@@ -1,6 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild, Input } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { DatePipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 
 // ngx-bootstrap imports
 import { ModalDirective } from 'ngx-bootstrap/modal/index';
@@ -35,10 +36,13 @@ export class PurchasesComponent implements OnInit {
     public newItem: Item = new Item();
     public selectedPurchase: Purchase;
     public creatingNewPurchase = false;
+    public errorCreatingNewPurchase = false;
+    public editingPurchase = false;
 
     @Input('user') currentUser: User;
 
     constructor(public api: ApiService) {
+
     }
 
     ngOnInit() {
@@ -59,6 +63,7 @@ export class PurchasesComponent implements OnInit {
     }
 
     showPurchaseDetailModal(purchase: Purchase) {
+        this.editingPurchase = false;
         this.selectedPurchase = purchase;
         this.modalPurchaseDetail.show();
     }
@@ -77,27 +82,35 @@ export class PurchasesComponent implements OnInit {
             this.modalNewPurchase.hide();
             this.resetNewPurchase();
             this.getPurchases();
+        }).catch(response => {
+            this.creatingNewPurchase = false;
+            this.errorCreatingNewPurchase = true;
         });
     }
 
     deletePurchase(purchase: Purchase) {
         this.api.delete('/purchase/' + purchase.id + '/').then(response => {
-            if (response) {
-                this.modalPurchaseDetail.hide();
-                this.getPurchases();
-            } else {
-                // No se ha podido borrar
-            }
+            this.modalPurchaseDetail.hide();
+            this.getPurchases();
+        }).catch(error => {
+            // TODO
+            console.log(error);
         });
     }
 
     resetNewPurchase() {
         this.newPurchase = new Purchase();
         this.creatingNewPurchase = false;
+        this.errorCreatingNewPurchase = false;
     }
 
     startEditingItem(item: Item) {
-        // TODO
+        this.editingPurchase = true;
+    }
+
+    applyItemChanges() {
+        this.editingPurchase = false;
+        this.selectedPurchase.total_price = this.calcPurchaseAmount(this.selectedPurchase);
     }
 
     removeItem(i: Item) {
@@ -107,13 +120,21 @@ export class PurchasesComponent implements OnInit {
     }
 
     confirmPurchaseEdition(purchase: Purchase) {
+        this.editingPurchase = false;
         this.api.patch('/purchase/' + purchase.id + '/', purchase).then(response => {
-            if (response) {
-                this.modalPurchaseDetail.hide();
-                this.getPurchases();
-            } else {
-                // No se ha podido borrar
-            }
+            this.modalPurchaseDetail.hide();
+            this.getPurchases();
+        }).catch(error => {
+            // TODO
+            console.log(error);
         });
+    }
+
+    private calcPurchaseAmount(purchase: Purchase) {
+        let amount: number = 0;
+        for (let i of purchase.items) { 
+            amount += i.price;
+        }
+        return amount;
     }
 }

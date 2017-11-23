@@ -16,31 +16,38 @@ export class AppComponent {
     @ViewChild('loginModal') public loginModal: ModalDirective;
     
     title = 'MotherFoca Market Commission';
+    public alert;
 
     public user: User = new User();
 
     constructor(public api: ApiService) {
-        let loggedUser = this.api.reload();
-        if (loggedUser) {
-            this.user = loggedUser;
-            this.user.loggedIn = true;
+        this.reload();
+    }
+
+    reload() {
+        let auxUser = this.api.getUser();
+        if (auxUser) {
+            this.user = auxUser;
         } else {
             this.user.loggedIn = false;
         }
     }
 
     login() {
-        if (this.api.login(this.user)) {
+        this.alert = null;
+        this.api.login(this.user).then(response => {
             this.user.loggedIn = true;
-            this.loginModal.hide();
-        } else {
-            // TODO: Error
-        }
+            this.loginModal.hide();   
+        }).catch(error => {
+            if (error['status'] === 401) {
+                this.alert = 401;
+            }
+        });
+        this.user.password = null;
     }
 
     logout() {
         this.api.logout(this.user);
-        this.user = new User();
         this.user.loggedIn = false;
     }
 }

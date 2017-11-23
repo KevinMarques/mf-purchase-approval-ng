@@ -9,6 +9,9 @@
                 <div class="sk-child sk-dot1"></div>
                 <div class="sk-child sk-dot2"></div>
             </div>
+            <div *ngIf="purchases && purchases.length == 0">
+                No hay solicitudes de compra recientes, el presupuesto está bajo mínimos.
+            </div>
             <table *ngIf="purchases?.length" class="table">
                 <thead>
                     <tr>
@@ -24,7 +27,7 @@
                         <td>{{purchase.user.username}}</td>
                         <td>{{purchase.date | date:'d' }} de {{purchase.date | date:'MMMM' }}</td>
                         <td>{{purchase.name}}</td>
-                        <td *ngIf="purchase.total_price; else totalFree">{{purchase.total_price}}€</td>
+                        <td *ngIf="purchase.total_price; else totalFree">{{purchase.total_price | number}}€</td>
                         <ng-template #totalFree>
                             <td class="text-success">Gratis</td>
                         </ng-template>
@@ -51,6 +54,10 @@
                 </button>
             </div>
             <div class="modal-body text-left">
+                <div *ngIf="errorCreatingNewPurchase" class="alert alert-danger" role="alert">
+                    <strong>No hemos podido crear la solicitud</strong>
+                    <br /> Probablemente Octal esté mordiendo algún cable. Inténtalo de nuevo más tarde.
+                </div>
                 <form class="form">
                     <div class="form-group">
                         <label for="purchase-description">
@@ -93,7 +100,7 @@
                             </tr>
                             <tr *ngFor="let item of newPurchase?.items">
                                 <td class="small">{{item.name}}</td>
-                                <td class="small text-center">{{item.price}}€</td>
+                                <td class="small text-center">{{item.price | number}}€</td>
                             </tr>
                         </tbody>
                     </table>
@@ -158,27 +165,58 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of selectedPurchase?.items">
-                            <td>{{item.name}}</td>
-                            <td class="text-center">{{item.price}}€</td>
-                            <td><a href="#" class="text-warning" title="Editar elemento" (click)="startEditingItem(item)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></td>
-                            <td><a href="#" class="text-danger" title="Borrar elemento" (click)="removeItem(item)"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
+                            <td>
+                                <span *ngIf="!editingPurchase">
+                                    <strong>{{item.name}}</strong>
+                                </span>
+                                <span *ngIf="editingPurchase">
+                                    <input type="text" [(ngModel)]="item.name" class="form-control form-control-sm">
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span *ngIf="!editingPurchase">
+                                    <strong>{{item.price | number}}€</strong>
+                                </span>
+                                <span *ngIf="editingPurchase">
+                                    <input type="text" [(ngModel)]="item.price" class="form-control form-control-sm">
+                                </span>
+                            </td>
+                            <td>
+                                <a href="#" class="text-warning" title="Editar elemento" *ngIf="currentUser.username == selectedPurchase?.user.username && !editingPurchase"
+                                    (click)="startEditingItem(item)">
+                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                </a>
+                                <a href="#" class="text-success" title="Aplicar" *ngIf="editingPurchase" (click)="applyItemChanges()">
+                                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="#" class="text-danger" title="Borrar elemento" *ngIf="currentUser.username == selectedPurchase?.user.username && !editingPurchase"
+                                    (click)="removeItem(item)">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                </a>
+                            </td>
                         </tr>
                         <tr>
                             <td class="text-right">
                                 <strong>Total</strong>
                             </td>
                             <td class="text-center">
-                                <strong>{{selectedPurchase?.total_price}}€</strong>
+                                <strong>{{selectedPurchase?.total_price | number}}€</strong>
                             </td>
                             <td colspan="2"></td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="text-right">
-                    <button type="button" class="btn btn-danger" (click)="deletePurchase(selectedPurchase)">Eliminar solicitud</button>
-                    <button type="button" class="btn btn-success" (click)="confirmPurchaseEdition(selectedPurchase)">Guardar cambios</button>
-                    <button type="button" class="btn btn-danger">Rechazar brutalmente</button>
-                    <button type="submit" class="btn btn-success">Aprobar</button>
+                    <div *ngIf="currentUser.username != selectedPurchase?.user.username; else owner">
+                        <button type="button" class="btn btn-sm btn-danger">Rechazar brutalmente</button>
+                        <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                    </div>
+                    <ng-template #owner>
+                        <button type="button" class="btn btn-sm btn-danger" (click)="deletePurchase(selectedPurchase)">Eliminar solicitud</button>
+                        <button type="button" class="btn btn-sm btn-success" (click)="confirmPurchaseEdition(selectedPurchase)">Guardar cambios</button>
+                    </ng-template>
                 </div>
             </div>
         </div>

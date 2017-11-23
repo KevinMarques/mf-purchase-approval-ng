@@ -14,6 +14,8 @@ import { AppComponent } from './app.component';
 import { UsersComponent } from './users/users.component';
 import { PurchasesComponent } from './purchases/purchases.component';
 
+import { AlertModule } from 'ngx-bootstrap/alert';
+
 import { ApiService } from './services/api.service';
 
 
@@ -28,7 +30,8 @@ import { ApiService } from './services/api.service';
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    AlertModule.forRoot()
   ],
   providers: [ApiService,
     { provide: LOCALE_ID, useValue: "es-ES" }],
